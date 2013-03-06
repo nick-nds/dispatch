@@ -4,6 +4,7 @@
 import os
 import filecmp
 import shutil
+from stat import *
 
 class Dispatch:
     ''' This class represents a synchronization object '''
@@ -42,7 +43,19 @@ class Dispatch:
             self.copy(comparison.left_only, left, right)
         if comparison.right_only:
             self.copy(comparison.right_only, right, left)
-         
+        left_newer = []
+        right_newer = []
+        if comparison.diff_files:
+            for d in comparison.diff_files:
+                l_modified = os.stat(os.path.join(left, d)).st_mtime
+                r_modified = os.stat(os.path.join(right, d)).st_mtime
+                if l_modified > r_modified:
+                    left_newer.append(d)
+                else:
+                    right_newer.append(d)
+        self.copy(left_newer, left, right)
+        self.copy(right_newer, right, left)
+
     def copy(self, file_list, src, dest):
         ''' This method copies a list of files from a source node to a destination node '''
         for f in file_list:
