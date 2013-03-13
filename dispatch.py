@@ -27,10 +27,10 @@ class Dispatch:
             if self.node_list.index(node) < len(self.node_list) - 1: 
                 node2 = self.node_list[self.node_list.index(node) + 1]
                 print '\nComparing Node ' + str(self.node_list.index(node)) + ' and Node ' + str(self.node_list.index(node) + 1) + ':'
-                # Passes the two root directories of the nodes to the recursive compare_directories.
-                self.compare_directories(node.root_path, node2.root_path)
+                # Passes the two root directories of the nodes to the recursive _compare_directories.
+                self._compare_directories(node.root_path, node2.root_path)
     
-    def compare_directories(self, left, right):
+    def _compare_directories(self, left, right):
         ''' This method compares directories. If there is a common directory, the
             algorithm must compare what is inside of the directory by calling this
             recursively.
@@ -38,11 +38,11 @@ class Dispatch:
         comparison = filecmp.dircmp(left, right)
         if comparison.common_dirs:
             for d in comparison.common_dirs:
-                self.compare_directories(os.path.join(left, d), os.path.join(right, d))
+                self._compare_directories(os.path.join(left, d), os.path.join(right, d))
         if comparison.left_only:
-            self.copy(comparison.left_only, left, right)
+            self._copy(comparison.left_only, left, right)
         if comparison.right_only:
-            self.copy(comparison.right_only, right, left)
+            self._copy(comparison.right_only, right, left)
         left_newer = []
         right_newer = []
         if comparison.diff_files:
@@ -53,10 +53,10 @@ class Dispatch:
                     left_newer.append(d)
                 else:
                     right_newer.append(d)
-        self.copy(left_newer, left, right)
-        self.copy(right_newer, right, left)
+        self._copy(left_newer, left, right)
+        self._copy(right_newer, right, left)
 
-    def copy(self, file_list, src, dest):
+    def _copy(self, file_list, src, dest):
         ''' This method copies a list of files from a source node to a destination node '''
         for f in file_list:
             srcpath = os.path.join(src, os.path.basename(f))
